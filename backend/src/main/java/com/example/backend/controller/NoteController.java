@@ -55,16 +55,18 @@ public class NoteController {
                     .body("Error adding note: " + e.getMessage());
         }
     }
-//    @PostMapping("/save_note")
-//    public ResponseEntity<?> addNote(@RequestBody Note note) {
-//        try {
-//            Note savedDevice = noteService.saveNote(note);
-//            return ResponseEntity.ok(savedDevice);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//                    .body("Error adding product: " + e.getMessage());
-//        }
-//    }
+
+    //получение записи по id
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getNoteById(@PathVariable Long id) {
+        try {
+            Note note = noteService.getNoteById(id);
+            return ResponseEntity.ok(note);
+        } catch (Exception e) {
+            return ResponseEntity.status(404)
+                    .body("Заметка не найдена");
+        }
+    }
 
     // Обновление товара
     @PutMapping("/update_note/{id}")

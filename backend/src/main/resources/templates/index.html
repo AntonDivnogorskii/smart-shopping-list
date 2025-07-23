@@ -88,6 +88,29 @@
             background-color: #27ae60;
         }
 
+        .note-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .note-actions button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+        }
+
+        .edit-btn {
+            color: #3498db;
+        }
+
+        .delete-btn {
+            color: #e74c3c;
+        }
+
         .note-list {
             margin-top: 20px;
             display: flex;
@@ -234,25 +257,53 @@
     <!-- Заметки будут загружаться здесь -->
 </div>
 
-<div class="modal-overlay" id="modalOverlay">
+<!-- Окно добавления -->
+<div class="modal-overlay" id="addModal">
     <div class="modal">
-        <button class="close-btn" onclick="closeModal()">×</button>
+        <button class="close-btn" onclick="closeModal('addModal')">×</button>
         <h2>Добавить заметку</h2>
-        <form onsubmit="addNote(event)">
+        <form id="addForm" onsubmit="handleAddSubmit(event)">
             <div class="form-group">
-                <label for="title">Заголовок</label>
-                <input type="text" id="title" required>
+                <label for="addTitle">Заголовок</label>
+                <input type="text" id="addTitle" required>
             </div>
             <div class="form-group">
-                <label for="description">Описание</label>
-                <textarea id="description"></textarea>
+                <label for="addDescription">Описание</label>
+                <textarea id="addDescription"></textarea>
             </div>
             <div class="form-group">
                 <label>Количество штук</label>
                 <div class="counter">
-                    <button type="button" onclick="changeCount(-1)">-</button>
-                    <span id="count">0</span>
-                    <button type="button" onclick="changeCount(1)">+</button>
+                    <button type="button" onclick="changeCount('addCount', -1)">-</button>
+                    <span id="addCount">0</span>
+                    <button type="button" onclick="changeCount('addCount', 1)">+</button>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Добавить</button>
+        </form>
+    </div>
+</div>
+
+<!-- Окно редактирования -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModal('editModal')">×</button>
+        <h2>Редактировать заметку</h2>
+        <form id="editForm" onsubmit="handleEditSubmit(event)">
+            <div class="form-group">
+                <label for="editTitle">Заголовок</label>
+                <input type="text" id="editTitle" required>
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Описание</label>
+                <textarea id="editDescription"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Количество штук</label>
+                <div class="counter">
+                    <button type="button" onclick="changeCount('editCount', -1)">-</button>
+                    <span id="editCount">0</span>
+                    <button type="button" onclick="changeCount('editCount', 1)">+</button>
                 </div>
             </div>
             <button type="submit" class="submit-btn">Сохранить</button>
@@ -261,176 +312,500 @@
 </div>
 
 <script>
-    // Загрузка заметок при загрузке страницы
-    document.addEventListener('DOMContentLoaded', function() {
-        loadNotes();
+    // JavaScript (замените весь ваш текущий скрипт этим кодом)
+let currentEditingId = null;
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotes();
+
+    // Обработчики форм
+    document.getElementById('addForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveNote(false);
     });
 
-    function loadNotes() {
-        fetch('/api/notes')
-            .then(response => response.json())
-            .then(notes => {
-                const noteList = document.getElementById('noteList');
-                if (notes.length === 0) {
-                    noteList.innerHTML = '<p class="no-notes">Заметок не найдено</p>';
-                    return;
-                }
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveNote(true);
+    });
+});
 
-                let html = '<ul>';
-                notes.forEach(note => {
-                    html += `
-                        <li class="note-item">
-                            <h3>${note.title}</h3>
-                            <p>${note.description}</p>
-                            <div class="note-meta">
-                                <span>Количество: ${note.count}</span>
-                            </div>
-                        </li>
-                    `;
-                });
-                html += '</ul>';
-                noteList.innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Error loading notes:', error);
-                document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка загрузки заметок</p>';
+// Загрузка заметок
+function loadNotes() {
+    fetch('/api/notes')
+        .then(response => response.json())
+        .then(notes => {
+            const noteList = document.getElementById('noteList');
+            noteList.innerHTML = '';
+
+            if (!notes || notes.length === 0) {
+                noteList.innerHTML = '<p class="no-notes">Заметок не найдено</p>';
+                return;
+            }
+
+            const ul = document.createElement('ul');
+            notes.forEach(note => {
+                const li = document.createElement('li');
+                li.className = 'note-item';
+                li.innerHTML = `
+                    <h3>${note.title || 'Без названия'}</h3>
+                    <p>${note.description || ''}</p>
+                    <div class="note-meta">
+                        <span>Количество: ${note.count || 0}</span>
+                        <div class="note-actions">
+                            <button class="edit-btn" onclick="editNote('${note.id}')">✏️</button>
+                            <button class="delete-btn" onclick="deleteNote('${note.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                ul.appendChild(li);
             });
+            noteList.appendChild(ul);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка загрузки</p>';
+        });
+}
+
+// Удаление заметки
+function deleteNote(noteId) {
+    if (!confirm('Вы уверены, что хотите удалить эту заметку?')) return;
+
+    fetch(`/api/notes/${noteId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка удаления');
+        loadNotes();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при удалении: ' + error.message);
+    });
+}
+
+// Редактирование заметки
+function editNote(noteId) {
+    fetch(`/api/notes/${noteId}`)
+        .then(response => response.json())
+        .then(note => {
+            currentEditingId = note.id;
+            document.getElementById('editTitle').value = note.title;
+            document.getElementById('editDescription').value = note.description || '';
+            document.getElementById('editCount').textContent = note.count || 0;
+            openModal('editModal');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Не удалось загрузить заметку для редактирования');
+        });
+}
+
+// Сохранение заметки
+function saveNote(isEdit) {
+    const prefix = isEdit ? 'edit' : 'add';
+    const noteData = {
+        title: document.getElementById(`${prefix}Title`).value,
+        description: document.getElementById(`${prefix}Description`).value,
+        count: parseInt(document.getElementById(`${prefix}Count`).textContent)
+    };
+
+    const url = isEdit ? `/api/notes/${currentEditingId}` : '/api/notes';
+    const method = isEdit ? 'PUT' : 'POST';
+
+    fetch(url, {
+        method: method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(noteData)
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Ошибка сохранения');
+        return response.json();
+    })
+    .then(() => {
+        closeModal(isEdit ? 'editModal' : 'addModal');
+        resetForm(isEdit ? 'editForm' : 'addForm');
+        loadNotes();
+        alert(isEdit ? 'Заметка обновлена!' : 'Заметка добавлена!');
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка: ' + error.message);
+    });
+}
+
+// Поиск заметок
+function searchNotes() {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) {
+        loadNotes();
+        return;
     }
 
-    function searchNotes() {
-        const query = document.getElementById('searchInput').value.trim();
-        if (!query) {
-            loadNotes();
-            return;
-        }
+    fetch(`/api/notes/search?name=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(notes => {
+            const noteList = document.getElementById('noteList');
+            noteList.innerHTML = '';
 
-        fetch(`/api/notes/search?name=${encodeURIComponent(query)}`)
-            .then(response => response.json())
-            .then(notes => {
-                const noteList = document.getElementById('noteList');
-                if (notes.length === 0) {
-                    noteList.innerHTML = '<p class="no-notes">Ничего не найдено</p>';
-                    return;
-                }
+            if (!notes || notes.length === 0) {
+                noteList.innerHTML = '<p class="no-notes">Ничего не найдено</p>';
+                return;
+            }
 
-                let html = '<ul>';
-                notes.forEach(note => {
-                    html += `
-                        <li class="note-item">
-                            <h3>${note.title}</h3>
-                            <p>${note.description}</p>
-                            <div class="note-meta">
-                                <span>Количество: ${note.count}</span>
-                            </div>
-                        </li>
-                    `;
-                });
-                html += '</ul>';
-                noteList.innerHTML = html;
-            })
-            .catch(error => {
-                console.error('Error searching notes:', error);
-                document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка поиска</p>';
+            const ul = document.createElement('ul');
+            notes.forEach(note => {
+                const li = document.createElement('li');
+                li.className = 'note-item';
+                li.innerHTML = `
+                    <h3>${note.title}</h3>
+                    <p>${note.description || ''}</p>
+                    <div class="note-meta">
+                        <span>Количество: ${note.count || 0}</span>
+                        <div class="note-actions">
+                            <button class="edit-btn" onclick="editNote('${note.id}')">✏️</button>
+                            <button class="delete-btn" onclick="deleteNote('${note.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `;
+                ul.appendChild(li);
             });
+            noteList.appendChild(ul);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка поиска</p>';
+        });
+}
+
+// Вспомогательные функции
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'flex';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+function changeCount(elementId, delta) {
+    const element = document.getElementById(elementId);
+    let count = parseInt(element.textContent);
+    count = Math.max(0, count + delta);
+    element.textContent = count;
+}
+
+function resetForm(formId) {
+    const prefix = formId === 'editForm' ? 'edit' : 'add';
+    document.getElementById(`${prefix}Title`).value = '';
+    document.getElementById(`${prefix}Description`).value = '';
+    document.getElementById(`${prefix}Count`).textContent = '0';
+}
+
+// Обработка нажатия Enter в поле поиска
+document.getElementById('searchInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchNotes();
     }
+});
 
-    function openModal() {
-        document.getElementById('modalOverlay').style.display = 'flex';
-    }
+// Обработчик кнопки добавления заметки
+document.querySelector('.add-note-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    openModal('addModal');
+});
 
-    function closeModal() {
-        document.getElementById('modalOverlay').style.display = 'none';
-    }
+<!--    // Загрузка заметок при загрузке страницы-->
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        loadNotes();-->
+<!--    });-->
 
-    function changeCount(delta) {
-        const countElement = document.getElementById('count');
-        let count = parseInt(countElement.textContent);
-        count += delta;
-        if (count < 0) count = 0;
-        countElement.textContent = count;
-    }
+<!--        function loadNotes() {-->
+<!--            fetch('/api/notes')-->
+<!--                .then(response => response.json())-->
+<!--                .then(notes => {-->
+<!--                    const noteList = document.getElementById('noteList');-->
+<!--                    noteList.innerHTML = '';-->
 
-<!--    function addNote(event) {-->
-<!--        event.preventDefault();-->
+<!--                    if (!notes || notes.length === 0) {-->
+<!--                        noteList.innerHTML = '<p class="no-notes">Заметок не найдено</p>';-->
+<!--                        return;-->
+<!--                    }-->
 
-<!--        const title = document.getElementById('title').value;-->
-<!--        const description = document.getElementById('description').value;-->
-<!--        const count = parseInt(document.getElementById('count').textContent);-->
+<!--                    const ul = document.createElement('ul');-->
+<!--                    notes.forEach(note => {-->
+<!--                        const li = document.createElement('li');-->
+<!--                        li.className = 'note-item';-->
+<!--                        li.innerHTML = `-->
+<!--                            <h3>${note.title || 'Без названия'}</h3>-->
+<!--                            <p>${note.description || ''}</p>-->
+<!--                            <div class="note-meta">-->
+<!--                                <span>Количество: ${note.count || 0}</span>-->
+<!--                                <div class="note-actions">-->
+<!--                                    <button class="edit-btn" onclick="editNote('${note.id}')">✏️</button>-->
+<!--                                    <button class="delete-btn" onclick="deleteNote('${note.id}')">🗑️</button>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        `;-->
+<!--                        ul.appendChild(li);-->
+<!--                    });-->
+<!--                    noteList.appendChild(ul);-->
+<!--                })-->
+<!--                .catch(error => {-->
+<!--                    console.error('Error loading notes:', error);-->
+<!--                    document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка загрузки</p>';-->
+<!--                });-->
+<!--        }-->
 
-<!--        fetch('/api/notes', {-->
-<!--            method: 'POST',-->
-<!--            headers: {-->
-<!--                'Content-Type': 'application/json',-->
-<!--            },-->
-<!--            body: JSON.stringify({-->
-<!--                title: title,-->
-<!--                description: description,-->
-<!--                count: count-->
-<!--            })-->
+<!--function deleteNote(noteId) {-->
+<!--    if (!confirm('Вы уверены, что хотите удалить эту заметку?')) return;-->
+
+<!--    fetch(`/api/notes/${noteId}`, {-->
+<!--        method: 'DELETE',-->
+<!--        headers: {-->
+<!--            'Content-Type': 'application/json'-->
+<!--        }-->
+<!--    })-->
+<!--    .then(response => {-->
+<!--        if (!response.ok) {-->
+<!--            return response.text().then(text => { throw new Error(text) });-->
+<!--        }-->
+<!--        loadNotes(); // Обновляем список после удаления-->
+<!--    })-->
+<!--    .catch(error => {-->
+<!--        console.error('Delete error:', error);-->
+<!--        alert('Ошибка при удалении: ' + error.message);-->
+<!--    });-->
+<!--}-->
+
+<!--let currentEditingNote = null;-->
+
+<!--function editNote(noteId) {-->
+<!--    fetch(`/api/notes/${noteId}`)-->
+<!--        .then(response => response.json())-->
+<!--        .then(note => {-->
+<!--            currentEditingNote = note;-->
+<!--            document.getElementById('title').value = note.title;-->
+<!--            document.getElementById('description').value = note.description || '';-->
+<!--            document.getElementById('count').textContent = note.count || 0;-->
+<!--            document.querySelector('.modal h2').textContent = 'Редактировать заметку';-->
+<!--            openModal();-->
 <!--        })-->
-<!--        .then(response => {-->
-<!--            if (!response.ok) {-->
-<!--                throw new Error('Network response was not ok');-->
-<!--            }-->
-<!--            return response.json();-->
-<!--        })-->
-<!--        .then(() => {-->
-<!--            closeModal();-->
+<!--        .catch(error => {-->
+<!--            console.error('Error loading note:', error);-->
+<!--            alert('Не удалось загрузить заметку для редактирования');-->
+<!--        });-->
+<!--}-->
+
+<!--function submitNoteForm(event) {-->
+<!--    event.preventDefault();-->
+
+<!--    const noteData = {-->
+<!--        title: document.getElementById('title').value,-->
+<!--        description: document.getElementById('description').value,-->
+<!--        count: parseInt(document.getElementById('count').textContent)-->
+<!--    };-->
+
+<!--    const url = currentEditingNote-->
+<!--        ? `/api/notes/${currentEditingNote.id}`-->
+<!--        : '/api/notes';-->
+
+<!--    const method = currentEditingNote ? 'PUT' : 'POST';-->
+
+<!--    fetch(url, {-->
+<!--        method: method,-->
+<!--        headers: {-->
+<!--            'Content-Type': 'application/json',-->
+<!--        },-->
+<!--        body: JSON.stringify(noteData)-->
+<!--    })-->
+<!--    .then(response => {-->
+<!--        if (!response.ok) {-->
+<!--            return response.text().then(text => { throw new Error(text) });-->
+<!--        }-->
+<!--        closeModal();-->
+<!--        resetNoteForm();-->
+<!--        loadNotes();-->
+<!--    })-->
+<!--    .catch(error => {-->
+<!--        console.error('Save error:', error);-->
+<!--        alert('Ошибка сохранения: ' + error.message);-->
+<!--    });-->
+<!--}-->
+
+<!--function resetNoteForm() {-->
+<!--    currentEditingNote = null;-->
+<!--    document.getElementById('title').value = '';-->
+<!--    document.getElementById('description').value = '';-->
+<!--    document.getElementById('count').textContent = '0';-->
+<!--    document.querySelector('.modal h2').textContent = 'Добавить заметку';-->
+<!--}-->
+
+<!--    function searchNotes() {-->
+<!--        const query = document.getElementById('searchInput').value.trim();-->
+<!--        if (!query) {-->
 <!--            loadNotes();-->
-<!--            // Очистка формы-->
+<!--            return;-->
+<!--        }-->
+
+<!--        fetch(`/api/notes/search?name=${encodeURIComponent(query)}`)-->
+<!--            .then(response => response.json())-->
+<!--            .then(notes => {-->
+<!--                const noteList = document.getElementById('noteList');-->
+<!--                if (notes.length === 0) {-->
+<!--                    noteList.innerHTML = '<p class="no-notes">Ничего не найдено</p>';-->
+<!--                    return;-->
+<!--                }-->
+
+<!--                let html = '<ul>';-->
+<!--                notes.forEach(note => {-->
+<!--                    html += `-->
+<!--                        <li class="note-item">-->
+<!--                            <h3>${note.title}</h3>-->
+<!--                            <p>${note.description}</p>-->
+<!--                            <div class="note-meta">-->
+<!--                                <span>Количество: ${note.count}</span>-->
+<!--                            </div>-->
+<!--                        </li>-->
+<!--                    `;-->
+<!--                });-->
+<!--                html += '</ul>';-->
+<!--                noteList.innerHTML = html;-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('Error searching notes:', error);-->
+<!--                document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка поиска</p>';-->
+<!--            });-->
+<!--    }-->
+
+<!--    function openModal() {-->
+<!--        document.getElementById('modalOverlay').style.display = 'flex';-->
+<!--    }-->
+
+<!--    function closeModal() {-->
+<!--        document.getElementById('modalOverlay').style.display = 'none';-->
+<!--    }-->
+
+<!--    function changeCount(delta) {-->
+<!--        const countElement = document.getElementById('count');-->
+<!--        let count = parseInt(countElement.textContent);-->
+<!--        count += delta;-->
+<!--        if (count < 0) count = 0;-->
+<!--        countElement.textContent = count;-->
+<!--    }-->
+
+<!--        // Модифицируйте addNote для обработки редактирования-->
+<!--        function addNote(event) {-->
+<!--            event.preventDefault();-->
+
+<!--            const noteData = {-->
+<!--                title: document.getElementById('title').value,-->
+<!--                description: document.getElementById('description').value,-->
+<!--                count: parseInt(document.getElementById('count').textContent)-->
+<!--            };-->
+
+<!--            const url = currentEditId ? `/api/notes/${currentEditId}` : '/api/notes';-->
+<!--            const method = currentEditId ? 'PUT' : 'POST';-->
+
+<!--            fetch(url, {-->
+<!--                method: method,-->
+<!--                headers: { 'Content-Type': 'application/json' },-->
+<!--                body: JSON.stringify(noteData)-->
+<!--            })-->
+<!--            .then(response => {-->
+<!--                if (!response.ok) throw new Error('Ошибка сохранения');-->
+<!--                closeModal();-->
+<!--                loadNotes();-->
+<!--                resetForm();-->
+<!--            })-->
+<!--            .catch(error => {-->
+<!--                console.error('Save error:', error);-->
+<!--                alert('Ошибка сохранения: ' + error.message);-->
+<!--            });-->
+<!--        }-->
+
+<!--        function resetForm() {-->
+<!--            currentEditId = null;-->
 <!--            document.getElementById('title').value = '';-->
 <!--            document.getElementById('description').value = '';-->
 <!--            document.getElementById('count').textContent = '0';-->
-<!--        })-->
-<!--        .catch(error => {-->
-<!--            console.error('Error adding note:', error);-->
-<!--            alert('Ошибка при добавлении заметки');-->
+<!--            document.querySelector('.modal h2').textContent = 'Добавить заметку';-->
+<!--        }-->
+<!--        let currentNoteId = null; // Для отслеживания режима (создание/редактирование)-->
+
+<!--// Обработчик формы-->
+<!--document.getElementById('noteForm').addEventListener('submit', function(e) {-->
+<!--    e.preventDefault();-->
+<!--    saveNote();-->
+<!--});-->
+
+<!--// Функция сохранения-->
+<!--function saveNote() {-->
+<!--    const noteData = {-->
+<!--        title: document.getElementById('title').value,-->
+<!--        description: document.getElementById('description').value,-->
+<!--        count: parseInt(document.getElementById('count').textContent)-->
+<!--    };-->
+
+<!--    const url = currentNoteId ? `/api/notes/${currentNoteId}` : '/api/notes';-->
+<!--    const method = currentNoteId ? 'PUT' : 'POST';-->
+
+<!--    fetch(url, {-->
+<!--        method: method,-->
+<!--        headers: {-->
+<!--            'Content-Type': 'application/json',-->
+<!--        },-->
+<!--        body: JSON.stringify(noteData)-->
+<!--    })-->
+<!--    .then(response => {-->
+<!--        if (!response.ok) {-->
+<!--            return response.json().then(err => { throw new Error(err.message || 'Ошибка сервера') });-->
+<!--        }-->
+<!--        return response.json();-->
+<!--    })-->
+<!--    .then(() => {-->
+<!--        closeModal();-->
+<!--        resetForm();-->
+<!--        loadNotes();-->
+<!--        alert(currentNoteId ? 'Заметка обновлена!' : 'Заметка создана!');-->
+<!--    })-->
+<!--    .catch(error => {-->
+<!--        console.error('Save error:', error);-->
+<!--        alert('Ошибка: ' + error.message);-->
+<!--    });-->
+<!--}-->
+
+<!--// Функция редактирования-->
+<!--function editNote(noteId) {-->
+<!--    fetch(`/api/notes/${noteId}`)-->
+<!--        .then(response => response.json())-->
+<!--        .then(note => {-->
+<!--            currentNoteId = note.id;-->
+<!--            document.getElementById('title').value = note.title;-->
+<!--            document.getElementById('description').value = note.description || '';-->
+<!--            document.getElementById('count').textContent = note.count || 0;-->
+<!--            document.querySelector('.modal h2').textContent = 'Редактировать заметку';-->
+<!--            openModal();-->
 <!--        });-->
-<!--    }-->
-function addNote(event) {
-            event.preventDefault();
+<!--}-->
 
-            const title = document.getElementById('title').value;
-            const description = document.getElementById('description').value;
-            const count = parseInt(document.getElementById('count').textContent);
+<!--// Сброс формы-->
+<!--function resetForm() {-->
+<!--    currentNoteId = null;-->
+<!--    document.getElementById('title').value = '';-->
+<!--    document.getElementById('description').value = '';-->
+<!--    document.getElementById('count').textContent = '0';-->
+<!--    document.querySelector('.modal h2').textContent = 'Добавить заметку';-->
+<!--}-->
 
-            fetch('/api/notes', { // Изменил путь
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: title,
-                    description: description,
-                    count: count
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text) });
-                }
-                return response.json();
-            })
-            .then(() => {
-                closeModal();
-                loadNotes();
-                // Очистка формы
-                document.getElementById('title').value = '';
-                document.getElementById('description').value = '';
-                document.getElementById('count').textContent = '0';
-            })
-            .catch(error => {
-                console.error('Error adding note:', error);
-                alert('Ошибка при добавлении заметки: ' + error.message);
-            });
-        }
-
-    // Обработка нажатия Enter в поле поиска
-    document.getElementById('searchInput').addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            searchNotes();
-        }
-    });
+<!--    // Обработка нажатия Enter в поле поиска-->
+<!--    document.getElementById('searchInput').addEventListener('keypress', function(e) {-->
+<!--        if (e.key === 'Enter') {-->
+<!--            searchNotes();-->
+<!--        }-->
+<!--    });-->
 </script>
 </body>
 </html>
