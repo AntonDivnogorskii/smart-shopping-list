@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart List</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .header-content {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            cursor: pointer;
+            color: #2c3e50;
+            font-size: 24px;
+            text-decoration: none;
+        }
+
+        .logo:hover {
+            color: #3498db;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            margin: 0 20px;
+            flex-grow: 1;
+            max-width: 500px;
+        }
+
+        .search-bar input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .search-bar button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+
+        .add-note-btn {
+            padding: 10px 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .add-note-btn:hover {
+            background-color: #27ae60;
+        }
+
+        .note-list {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .note-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .note-item {
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .note-meta {
+            margin-top: 10px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .no-notes {
+            text-align: center;
+            color: #7f8c8d;
+            margin-top: 50px;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 500px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .counter {
+            display: flex;
+            align-items: center;
+        }
+
+        .counter button {
+            padding: 5px 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .counter span {
+            margin: 0 10px;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .submit-btn {
+            padding: 10px 15px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            background: #27ae60;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="header-content">
+        <a href="/" class="logo">Smart List</a>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Поиск заметок...">
+            <button onclick="searchNotes()">Поиск</button>
+        </div>
+        <a href="#" class="add-note-btn" onclick="openModal(); return false;">Добавить заметку</a>
+    </div>
+</div>
+
+<div class="note-list" id="noteList">
+    <!-- Заметки будут загружаться здесь -->
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+        <button class="close-btn" onclick="closeModal()">×</button>
+        <h2>Добавить заметку</h2>
+        <form onsubmit="addNote(event)">
+            <div class="form-group">
+                <label for="title">Заголовок</label>
+                <input type="text" id="title" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Описание</label>
+                <textarea id="description"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Количество штук</label>
+                <div class="counter">
+                    <button type="button" onclick="changeCount(-1)">-</button>
+                    <span id="count">0</span>
+                    <button type="button" onclick="changeCount(1)">+</button>
+                </div>
+            </div>
+            <button type="submit" class="submit-btn">Сохранить</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Загрузка заметок при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        loadNotes();
+    });
+
+    function loadNotes() {
+        fetch('/api/notes')
+            .then(response => response.json())
+            .then(notes => {
+                const noteList = document.getElementById('noteList');
+                if (notes.length === 0) {
+                    noteList.innerHTML = '<p class="no-notes">Заметок не найдено</p>';
+                    return;
+                }
+
+                let html = '<ul>';
+                notes.forEach(note => {
+                    html += `
+                        <li class="note-item">
+                            <h3>${note.title}</h3>
+                            <p>${note.description}</p>
+                            <div class="note-meta">
+                                <span>Количество: ${note.count}</span>
+                            </div>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                noteList.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading notes:', error);
+                document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка загрузки заметок</p>';
+            });
+    }
+
+    function searchNotes() {
+        const query = document.getElementById('searchInput').value.trim();
+        if (!query) {
+            loadNotes();
+            return;
+        }
+
+        fetch(`/api/notes/search?name=${encodeURIComponent(query)}`)
+            .then(response => response.json())
+            .then(notes => {
+                const noteList = document.getElementById('noteList');
+                if (notes.length === 0) {
+                    noteList.innerHTML = '<p class="no-notes">Ничего не найдено</p>';
+                    return;
+                }
+
+                let html = '<ul>';
+                notes.forEach(note => {
+                    html += `
+                        <li class="note-item">
+                            <h3>${note.title}</h3>
+                            <p>${note.description}</p>
+                            <div class="note-meta">
+                                <span>Количество: ${note.count}</span>
+                            </div>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                noteList.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error searching notes:', error);
+                document.getElementById('noteList').innerHTML = '<p class="no-notes">Ошибка поиска</p>';
+            });
+    }
+
+    function openModal() {
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+
+    function changeCount(delta) {
+        const countElement = document.getElementById('count');
+        let count = parseInt(countElement.textContent);
+        count += delta;
+        if (count < 0) count = 0;
+        countElement.textContent = count;
+    }
+
+<!--    function addNote(event) {-->
+<!--        event.preventDefault();-->
+
+<!--        const title = document.getElementById('title').value;-->
+<!--        const description = document.getElementById('description').value;-->
+<!--        const count = parseInt(document.getElementById('count').textContent);-->
+
+<!--        fetch('/api/notes', {-->
+<!--            method: 'POST',-->
+<!--            headers: {-->
+<!--                'Content-Type': 'application/json',-->
+<!--            },-->
+<!--            body: JSON.stringify({-->
+<!--                title: title,-->
+<!--                description: description,-->
+<!--                count: count-->
+<!--            })-->
+<!--        })-->
+<!--        .then(response => {-->
+<!--            if (!response.ok) {-->
+<!--                throw new Error('Network response was not ok');-->
+<!--            }-->
+<!--            return response.json();-->
+<!--        })-->
+<!--        .then(() => {-->
+<!--            closeModal();-->
+<!--            loadNotes();-->
+<!--            // Очистка формы-->
+<!--            document.getElementById('title').value = '';-->
+<!--            document.getElementById('description').value = '';-->
+<!--            document.getElementById('count').textContent = '0';-->
+<!--        })-->
+<!--        .catch(error => {-->
+<!--            console.error('Error adding note:', error);-->
+<!--            alert('Ошибка при добавлении заметки');-->
+<!--        });-->
+<!--    }-->
+function addNote(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const count = parseInt(document.getElementById('count').textContent);
+
+            fetch('/api/notes', { // Изменил путь
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: title,
+                    description: description,
+                    count: count
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
+            .then(() => {
+                closeModal();
+                loadNotes();
+                // Очистка формы
+                document.getElementById('title').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('count').textContent = '0';
+            })
+            .catch(error => {
+                console.error('Error adding note:', error);
+                alert('Ошибка при добавлении заметки: ' + error.message);
+            });
+        }
+
+    // Обработка нажатия Enter в поле поиска
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            searchNotes();
+        }
+    });
+</script>
+</body>
+</html>
