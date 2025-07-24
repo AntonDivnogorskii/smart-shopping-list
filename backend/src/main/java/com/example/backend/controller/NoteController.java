@@ -97,4 +97,19 @@ public class NoteController {
                     .body("Error deleting product: " + e.getMessage());
         }
     }
+
+    // Обновление только поля indicator
+    @PatchMapping("/{id}/indicator")
+    public ResponseEntity<?> updateIndicator(@PathVariable Long id, @RequestParam boolean value) {
+        try {
+            Note note = noteService.getNoteById(id);
+            note.setIndicator(value);
+            Note updated = noteService.updateNote(note);
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error updating indicator: " + e.getMessage());
+        }
+    }
+
 }

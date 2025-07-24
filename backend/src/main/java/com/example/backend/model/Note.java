@@ -23,9 +23,9 @@ public class Note {
     @JsonProperty("text")
     private String text;
 
-    @JsonProperty("content ")
+    @JsonProperty("content")
     private int content;
 
     @JsonProperty("indicator")
-    private Boolean indicator;
+    private Boolean indicator = false;
 }
