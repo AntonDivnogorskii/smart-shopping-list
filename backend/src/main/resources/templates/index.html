@@ -265,6 +265,340 @@
         .submit-btn:hover {
             background: #27ae60;
         }
+
+        .filter-btn {
+            padding: 8px 14px;
+            background-color: #e0e0e0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            background-color: #ccc;
+        }
+
+        .main-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.notes-center {
+    flex: 1;
+    max-width: 800px; /* Ширина центральной части */
+    margin: 0 auto; /* Центрирование */
+}
+
+.filter-sidebar {
+    position: fixed;
+    right: 20px;
+    top: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-btn {
+    padding: 8px 14px;
+    background-color: #e0e0e0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    width: 150px; /* Фиксированная ширина кнопок */
+}
+
+.filter-btn:hover {
+    background-color: #ccc;
+}
+
+#notes-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Основной контейнер заметки */
+.note {
+    position: relative; /* Для позиционирования кнопок */
+    margin-bottom: 10px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.note-actions {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    display: flex;
+    gap: 5px;
+}
+
+.edit-btn, .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+/* Обертка для чекбокса и контента */
+.note-content-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* Чекбокс */
+.note-content-wrapper input[type="checkbox"] {
+    margin-top: 3px;
+    transform: scale(1.2);
+}
+
+/* Контент заметки */
+.note-content {
+    flex: 1;
+}
+
+/* Стиль для "выполненных" заметок */
+.note.checked {
+    opacity: 0.6;
+    background-color: #f8f8f8;
+}
+
+.note-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.note-flag {
+    color: #ff4757;
+    font-size: 18px;
+}
+
+        .filter-sidebar {
+    top: 200px; /* Подстройте под ваш интерфейс */
+}
+
+.note-list {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.note {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    background: white;
+}
+
+.note-container {
+    margin-bottom: 10px; /* 1см отступ снизу */
+    border: 1px solid #eee; /* Легкая граница (опционально) */
+    border-radius: 6px; /* Скругление углов */
+    padding: 12px; /* Внутренний отступ */
+    background: white;
+    transition: all 0.2s; /* Плавные изменения */
+}
+
+
+.note-container:hover {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Эффект при наведении */
+}
+
+.note-checkbox {
+    margin-top: 3px;
+    transform: scale(1.3);
+}
+
+.note-content {
+    flex: 1;
+}
+
+.note-content h3 {
+    margin: 0 0 5px 0;
+}
+
+.note-content p {
+    margin: 0 0 5px 0;
+    color: #555;
+}
+
+.amount {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.note-container.checked {
+    opacity: 0.6;
+    background-color: #f8f8f8;
+}
+
+.note-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.note-header h3 {
+    margin: 0;
+}
+
+.note-header input[type="checkbox"] {
+    margin: 0;
+    transform: scale(1.2);
+}
+
+.note.checked {
+    opacity: 0.6;
+    background-color: #f5f5f5;
+}
+
+.amount {
+    margin-top: 8px;
+    color: #666;
+}
+
+.note h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.note p {
+    margin: 5px 0;
+    color: #666;
+}
+
+ .filter-sidebar {
+    position: fixed;
+    right: 30px;
+    top: 180px; /* 5 см от кнопки "Добавить заметку" */
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
+
+.filter-sidebar button:hover {
+    background: #3a5f8a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+        .filter-sidebar button:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+<!--.add-note-btn {-->
+<!--    /* Ваши текущие стили */-->
+<!--    position: relative;-->
+<!--    display: inline-block; /* Чтобы работали отступы */-->
+<!--    margin-right: 20px; /* Отступ от края */-->
+<!--}-->
+.add-note-btn {
+    position: relative; /* Для абсолютного позиционирования фильтров */
+    /* Ваши текущие стили кнопки */
+    height: 40px; /* Примерная высота */
+    margin-right: 20px; /* Отступ от правого края */
+}
+
+<!--.filter-sidebar {-->
+<!--    position: absolute;-->
+<!--    right: 20px; /* Совмещаем с кнопкой */-->
+<!--    top: 60px; /* 40px (высота кнопки) + 20px (5 см) = 60px */-->
+<!--    width: 180px;-->
+<!--    background: white;-->
+<!--    border: 1px solid #ddd;-->
+<!--    border-radius: 8px;-->
+<!--    padding: 10px;-->
+<!--    z-index: 100;-->
+<!--}-->
+
+<!--.filter-sidebar button {-->
+<!--    display: block;-->
+<!--    width: 100%;-->
+<!--    padding: 8px;-->
+<!--    margin-bottom: 5px;-->
+<!--    background: #f5f5f5;-->
+<!--    border: none;-->
+<!--    border-radius: 4px;-->
+<!--    cursor: pointer;-->
+<!--}-->
+.filter-sidebar {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 50px); /* 5 см ниже кнопки (100% высоты кнопки + 50px) */
+    width: 200px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    padding: 12px;
+    z-index: 100;
+}
+
+.filter-sidebar button {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 8px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-sidebar button:hover {
+    background: #e0e0e0;
+}
+
+        .note.checked {
+    opacity: 0.6;
+    background: #f5f5f5;
+    transition: all 0.3s ease;
+}
+
+        .add-note-container {
+    position: relative;
+    display: inline-block;
+    margin-left: auto; /* Выравнивание по правому краю */
+}
+
+.add-note-btn {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.filter-sidebar {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 20px); /* 20px = ~2см (меняйте по желанию) */
+    width: 200px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    z-index: 100;
+}
+
     </style>
 </head>
 <body>
@@ -275,7 +609,17 @@
             <input type="text" id="searchInput" placeholder="Поиск заметок...">
             <button onclick="searchNotes()">Поиск</button>
         </div>
-        <a href="#" class="add-note-btn" onclick="openModal(); return false;">Добавить заметку</a>
+
+        <!-- Кнопка добавления и фильтры -->
+        <div class="add-note-container">
+            <a href="#" class="add-note-btn" onclick="openModal(); return false;">Добавить заметку</a>
+            <div class="filter-sidebar">
+                <button onclick="filterNotes('default')">Сбросить фильтры</button>
+                <button onclick="filterNotes('alpha')">А-Я</button>
+                <button onclick="filterNotes('content')">Сортировать по количеству</button>
+            </div>
+        </div>
+        <!-- Конец блока -->
     </div>
 </div>
 
@@ -309,6 +653,25 @@
         </form>
     </div>
 </div>
+
+<!--&lt;!&ndash; Блок фильтров (справа) &ndash;&gt;-->
+<!--<div class="filter-sidebar">-->
+<!--    <button onclick="filterNotes('default')">Сбросить фильтры</button>-->
+<!--    <button onclick="filterNotes('alpha')">СортироватьА-Я</button>-->
+<!--    <button onclick="filterNotes('content')">Сортировать по количеству</button>-->
+<!--</div>-->
+
+<!--<div class="add-note-container">-->
+<!--    <a href="#" class="add-note-btn" onclick="openModal(); return false;">Добавить заметку</a>-->
+
+<!--    <div class="filter-sidebar">-->
+<!--        <button onclick="filterNotes('default')">Сбросить фильтры</button>-->
+<!--        <button onclick="filterNotes('alpha')">СортироватьА А-Я</button>-->
+<!--        <button onclick="filterNotes('content')">Сортировать по количеству</button>-->
+<!--    </div>-->
+<!--</div>-->
+
+<div id="notes-container" style="margin-top: 150px;"></div>
 
 <!-- Окно редактирования -->
 <div class="modal-overlay" id="editModal">
@@ -399,22 +762,204 @@
             });
     }
 
-    // Удаление заметки (путь исправлен)
-    function deleteNote(noteId) {
-        if (!confirm('Вы уверены, что хотите удалить эту заметку?')) return;
 
-        fetch(`/api/notes/delete_note/${noteId}`, { // <-- исправленный путь
-            method: 'DELETE'
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Ошибка удаления');
-            loadNotes();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Ошибка при удалении: ' + error.message);
+<!--function renderNotes(notes) {-->
+<!--    const noteList = document.getElementById('noteList');-->
+<!--    noteList.innerHTML = notes.map(note => `-->
+<!--        <div class="note ${note.indicator ? 'checked' : ''}" data-id="${note.id}">-->
+<!--            <div class="note-content-wrapper">-->
+<!--                <input type="checkbox" ${note.indicator ? 'checked' : ''}>-->
+<!--                <div class="note-content">-->
+<!--                    <h3>${note.title || 'Без названия'}</h3>-->
+<!--                    <p>${note.text || ''}</p>-->
+<!--                    <div class="amount">Количество: ${note.content}</div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    `).join('');-->
+
+<!--    // Обработчики чекбоксов остаются без изменений-->
+<!--    document.querySelectorAll('.note-checkbox').forEach(checkbox => {-->
+<!--        checkbox.addEventListener('change', async function() {-->
+<!--            const noteElement = this.closest('.note-container');-->
+<!--            const noteId = noteElement.dataset.id;-->
+
+<!--            try {-->
+<!--                await fetch(`/api/notes/${noteId}/toggle-indicator`, {-->
+<!--                    method: 'PATCH',-->
+<!--                    headers: {'Content-Type': 'application/json'},-->
+<!--                    body: JSON.stringify({indicator: this.checked})-->
+<!--                });-->
+<!--                noteElement.classList.toggle('checked', this.checked);-->
+<!--            } catch (error) {-->
+<!--                console.error('Ошибка:', error);-->
+<!--                this.checked = !this.checked;-->
+<!--            }-->
+<!--        });-->
+<!--    });-->
+<!--}-->
+function renderNotes(notes) {
+    const noteList = document.getElementById('noteList');
+
+    // Сохраняем текущие заметки перед обновлением
+    const existingNotes = {};
+    noteList.querySelectorAll('.note').forEach(noteEl => {
+        const id = noteEl.dataset.id;
+        existingNotes[id] = {
+            element: noteEl,
+            checkbox: noteEl.querySelector('input[type="checkbox"]')?.checked
+        };
+    });
+
+    // Очищаем и пересобираем с сохранением состояния
+    noteList.innerHTML = notes.map(note => {
+        const existing = existingNotes[note.id];
+
+        return `
+        <div class="note ${note.indicator ? 'checked' : ''}" data-id="${note.id}">
+            <div class="note-content-wrapper">
+                <input type="checkbox" ${existing?.checkbox || note.indicator ? 'checked' : ''}>
+                <div class="note-content">
+                    <h3>${note.title}</h3>
+                    <p>${note.text}</p>
+                    <div class="amount">Количество: ${note.content}</div>
+                </div>
+            </div>
+            <!-- Кнопки действий -->
+            <div class="note-actions">
+                <button class="edit-btn" onclick="editNote('${note.id}')">✏️</button>
+                <button class="delete-btn" onclick="deleteNote('${note.id}')">🗑️</button>
+            </div>
+        </div>
+        `;
+    }).join('');
+
+    // Восстанавливаем обработчики
+    initNoteEvents();
+}
+
+// Инициализация обработчиков
+function initNoteEvents() {
+    // Чекбоксы
+    document.querySelectorAll('.note input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', handleCheckboxChange);
+    });
+
+    // Кнопки (если не используете onclick в HTML)
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', handleEdit);
+    });
+
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', handleDelete);
+    });
+}
+
+// Пример обработчика
+async function handleCheckboxChange(e) {
+    const noteId = this.closest('.note').dataset.id;
+    const isChecked = this.checked;
+
+    try {
+        await fetch(`/api/notes/${noteId}/toggle`, {
+            method: 'PATCH',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({indicator: isChecked})
         });
+    } catch (error) {
+        console.error('Ошибка:', error);
+        this.checked = !isChecked; // Откат при ошибке
     }
+}
+
+// В функции renderNotes после создания HTML:
+document.querySelectorAll('.note input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', async function() {
+        const noteElement = this.closest('.note');
+        const noteId = noteElement.dataset.id; // Нужно добавить data-id в HTML
+
+        try {
+            await fetch(`/api/notes/${noteId}/toggle`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({checked: this.checked})
+            });
+            noteElement.classList.toggle('checked', this.checked);
+        } catch (error) {
+            console.error('Ошибка:', error);
+            this.checked = !this.checked; // Откатываем изменение
+        }
+    });
+});
+
+
+// Обработчик чекбоксов:
+document.querySelectorAll('.note input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', async function() {
+        const noteElement = this.closest('.note');
+        const noteId = noteElement.dataset.id;
+
+        try {
+            await fetch(`/api/notes/${noteId}/toggle-indicator`, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({indicator: this.checked})
+            });
+            noteElement.classList.toggle('checked', this.checked);
+        } catch (error) {
+            console.error('Ошибка:', error);
+            this.checked = !this.checked;
+        }
+    });
+});
+
+function createNoteElement(note) {
+    const div = document.createElement('div');
+    div.className = 'note';
+    div.innerHTML = `
+        <input type="checkbox" ${note.checked ? 'checked' : ''}>
+        <h3>${note.title}</h3>
+        <p>${note.content}</p>
+        <div class="amount">Количество: ${note.amount || 0}</div>
+    `;
+
+    // Находим чекбокс после создания
+    const checkbox = div.querySelector('input[type="checkbox"]');
+    checkbox.addEventListener('change', function(e) {
+        note.checked = e.target.checked;
+        div.style.opacity = note.checked ? '0.6' : '1';
+    });
+
+    // Применяем начальные стили
+    div.style.opacity = note.checked ? '0.6' : '1';
+
+    return div;
+}
+
+// Функция для обновления внешнего вида заметки
+function updateNoteAppearance(noteElement, isChecked) {
+    if (isChecked) {
+        noteElement.style.opacity = '0.6';
+        noteElement.style.backgroundColor = '#f5f5f5';
+    } else {
+        noteElement.style.opacity = '1';
+        noteElement.style.backgroundColor = '';
+    }
+}
+
+function filterNotes(type) {
+    const url = type === 'alpha' ? '/api/notes/sort/alpha' :
+               type === 'content' ? '/api/notes/sort/content' :
+               '/api/notes';
+
+    fetch(url)
+        .then(r => r.json())
+        .then(renderNotes)
+        .catch(e => console.error("Ошибка:", e));
+}
+
+// Первая загрузка
+filterNotes('default');
 
 let currentIndicator = false;
 

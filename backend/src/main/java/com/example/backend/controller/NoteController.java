@@ -9,11 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notes")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:8080")
+@CrossOrigin(origins = "*")
 public class NoteController {
     private final NoteService noteService;
 
@@ -112,4 +113,55 @@ public class NoteController {
         }
     }
 
+
+
+    // Фильтр по алфавиту
+    @GetMapping("/sort/alpha")
+    public ResponseEntity<?> getNotesSortedByTitle() {
+        try {
+            List<Note> notes = noteService.getAllNotesSortedByTitle();
+            return ResponseEntity.ok(notes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error sorting by title: " + e.getMessage());
+        }
+    }
+
+    // Фильтр по количеству (по убыванию)
+    @GetMapping("/sort/content")
+    public ResponseEntity<?> getNotesSortedByContent() {
+        try {
+            List<Note> notes = noteService.getAllNotesSortedByContent();
+            return ResponseEntity.ok(notes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error sorting by content: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/save")
+    public Note saveOrUpdate(@RequestBody Note note) {
+        return noteService.saveOrUpdate(note);
+    }
+
+//    @DeleteMapping("/{id}")
+//    public void delete(@PathVariable Long id) {
+//        noteService.delete(id);
+//    }
+
+    @PatchMapping("/{id}/toggle-indicator")
+    public ResponseEntity<?> toggleIndicator(
+            @PathVariable Long id,
+            @RequestBody Map<String, Boolean> request
+    ) {
+        try {
+            Note note = noteService.getNoteById(id);
+            note.setIndicator(request.get("indicator"));
+            noteService.saveNote(note);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500)
+                    .body("Ошибка обновления индикатора: " + e.getMessage());
+        }
+    }
 }
