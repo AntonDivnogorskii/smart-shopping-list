@@ -21,6 +21,11 @@ public class NoteService {
 //        return noteRepository.findById(id);
 //    }
 
+    public Note getNoteById(Long id) {
+        return noteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Заметка не найдена"));
+    }
+
     public List<Note> readAllNotes(){
         return noteRepository.findAll();
     }
