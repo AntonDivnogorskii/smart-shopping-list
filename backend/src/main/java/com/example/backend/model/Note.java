@@ -2,9 +2,7 @@ package com.example.backend.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Entity
@@ -26,6 +24,9 @@ public class Note {
     @JsonProperty("content")
     private int content;
 
+    @Setter
+    @Getter
     @JsonProperty("indicator")
     private Boolean indicator = false;
+
 }

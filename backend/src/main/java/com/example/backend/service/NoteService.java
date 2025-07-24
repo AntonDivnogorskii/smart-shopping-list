@@ -5,6 +5,7 @@ import com.example.backend.repository.NoteRepository;
 import com.example.backend.request.NoteFilterRequest;
 import com.example.backend.specification.NoteSpecifications;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +17,6 @@ import java.util.Optional;
 @AllArgsConstructor
 public class NoteService {
     private final NoteRepository noteRepository;
-
-//    public Optional<Note> findById(Long id) {
-//        return noteRepository.findById(id);
-//    }
 
     public Note getNoteById(Long id) {
         return noteRepository.findById(id)
@@ -61,4 +58,30 @@ public class NoteService {
             throw new RuntimeException("Note not found with id: " + id);
         }
     }
+
+
+
+    public List<Note> getAllNotes() {
+        return noteRepository.findAll();
+    }
+
+    public List<Note> getAllNotesSortedByTitle() {
+        System.out.println("Вызов сортировки по алфавиту");
+        List<Note> notes = noteRepository.findAll(Sort.by(Sort.Direction.ASC, "title"));
+        System.out.println("Найдено заметок: " + notes.size());
+        return notes;
+    }
+
+    public List<Note> getAllNotesSortedByContent() {
+        return noteRepository.findAll(Sort.by(Sort.Direction.DESC, "content"));
+    }
+
+    public Note saveOrUpdate(Note note) {
+        return noteRepository.save(note);
+    }
+
+    public void delete(Long id) {
+        noteRepository.deleteById(id);
+    }
+
 }
